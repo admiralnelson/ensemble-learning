@@ -15,17 +15,25 @@ class Ensemble(object):
         self.InputData = np.loadtxt(self.path, skiprows=1, delimiter=",")
         self.bootsrapAmt = bootstrapAmt
         self.debug = debug
-        
-        # bagging
-        self.bootstrap = np.copy(self.InputData)
-        np.random.shuffle(self.bootstrap)
-        self.bootstrap = self.bootstrap[:self.bootsrapAmt]
     
     def TrainModel(self):
-        data = list(zip(*self.bootstrap))    
-        self.navieBayesModel = GaussianNB().fit(np.array(data[:len(data)-1]).T, data[len(data)-1])        
-        self.regressionModel = LogisticRegression().fit(np.array(data[:len(data)-1]).T, data[len(data)-1])
-        self.vectorMachine = SVC().fit(np.array(data[:len(data)-1]).T, data[len(data)-1])
+        # bagging 1
+        bootstrap1 = np.copy(self.InputData)
+        np.random.shuffle(bootstrap1)
+        bootstrap1 = bootstrap1[:self.bootsrapAmt]
+        # bagging 2
+        bootstrap2 = np.copy(self.InputData)
+        np.random.shuffle(bootstrap2)
+        bootstrap2 = bootstrap2[:self.bootsrapAmt]
+        # bagging 3
+        bootstrap3 = np.copy(self.InputData)
+        np.random.shuffle(bootstrap3)
+        bootstrap3 = bootstrap3[:self.bootsrapAmt]
+
+        data1, data2, data3 = list(zip(*bootstrap1)), list(zip(*bootstrap2)), list(zip(*bootstrap3))
+        self.navieBayesModel = GaussianNB().fit(np.array(data1[:len(data1)-1]).T, data1[len(data1)-1])        
+        self.regressionModel = LogisticRegression().fit(np.array(data2[:len(data2)-1]).T, data2[len(data2)-1])
+        self.vectorMachine = SVC().fit(np.array(data3[:len(data3)-1]).T, data2[len(data3)-1])
         print("Train OK")
 
     def Test(self, data):  
@@ -91,8 +99,7 @@ class Ensemble(object):
         print("Done")
 
 
-esemble = Ensemble("train.csv", 10, debug=False)
-data = list(zip(*esemble.bootstrap))
+esemble = Ensemble("train.csv", 200, debug=False)
 esemble.TrainModel()
 esemble.Test(np.array([23.15,19.05]))
 esemble.CheckAccuracy()
