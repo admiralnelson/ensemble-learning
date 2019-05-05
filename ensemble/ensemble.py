@@ -82,13 +82,16 @@ class Ensemble(object):
         i = 0
         for t in testData:
             testData[i] = list(testData[i])
-            testData[i][2] = self.Test(t[:len(t)-1])
+            res = self.Test(t[:len(t)-1])
+            testData[i][2] = res
+            print("class of ", t ," is ", int(res))
             i += 1
         textFile = np.asarray(testData)
         np.savetxt("result.csv", textFile, delimiter=",")
+        print("Done")
 
 
-esemble = Ensemble("train.csv", 10, debug=True)
+esemble = Ensemble("train.csv", 10, debug=False)
 data = list(zip(*esemble.bootstrap))
 esemble.TrainModel()
 esemble.Test(np.array([23.15,19.05]))
